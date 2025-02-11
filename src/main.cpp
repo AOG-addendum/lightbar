@@ -48,9 +48,9 @@ Machine machine;
 portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
 SemaphoreHandle_t i2cMutex;
 
-#define NUMPIXELS 1
-tNeopixel pixel[NUMPIXELS] = { };
-tNeopixelContext onBoardNeopixel = neopixel_Init( NUMPIXELS, 39 );
+#define ONBOARDPIXEL 1
+tNeopixel pixel[ONBOARDPIXEL] = { };
+tNeopixelContext onBoardNeopixel = neopixel_Init( ONBOARDPIXEL, 39 );
 
 const byte DNS_PORT = 53;
 IPAddress apIP( 192, 168, 1, 1 );
@@ -80,7 +80,7 @@ void setup( void ) {
   pinMode( 38, OUTPUT );
   digitalWrite( 38, HIGH );
   pixel[0] = { 0, NP_RGB( 255, 0, 0 )};
-  neopixel_SetPixel( onBoardNeopixel, pixel, NUMPIXELS );
+  neopixel_SetPixel( onBoardNeopixel, pixel, ONBOARDPIXEL );
 
   initWiFi();
   apIP = WiFi.localIP();
@@ -95,7 +95,7 @@ void setup( void ) {
 
   if( WiFi.getMode() == WIFI_STA ){
     pixel[0] = { 0, NP_RGB( 0, 255, 0 )};
-    neopixel_SetPixel( onBoardNeopixel, pixel, NUMPIXELS );
+    neopixel_SetPixel( onBoardNeopixel, pixel, ONBOARDPIXEL );
   }
 
 

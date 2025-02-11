@@ -45,8 +45,8 @@ extern uint16_t widgetCmPerLightbarPixel;
 extern uint16_t widgetCmPerDistInc;
 
 extern uint16_t labelStatusOutput;
-#define NUMPIXELS 1
-extern tNeopixel pixel[NUMPIXELS];
+#define ONBOARDPIXEL 1
+extern tNeopixel pixel[ONBOARDPIXEL];
 extern tNeopixelContext onBoardNeopixel;
 
 ///////////////////////////////////////////////////////////////////////////

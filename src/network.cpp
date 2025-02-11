@@ -44,7 +44,7 @@ void WiFiStationConnected( WiFiEvent_t event, WiFiEventInfo_t info ){
   WiFi.config( INADDR_NONE, INADDR_NONE, INADDR_NONE );
   WiFi.setHostname( lightbarConfig.hostname );
   pixel[0] = { 0, NP_RGB( 0, 255, 0 )};
-  neopixel_SetPixel( onBoardNeopixel, pixel, NUMPIXELS );
+  neopixel_SetPixel( onBoardNeopixel, pixel, ONBOARDPIXEL );
 }
 
 void WiFiAPStaConnected( WiFiEvent_t event, WiFiEventInfo_t info ){
