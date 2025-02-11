@@ -117,7 +117,7 @@ void setup( void ) {
   initLightbar();
 
   if( lightbarConfig.enableOTA ) {
-    AsyncElegantOTA.begin( ESPUI.server );
+    AsyncElegantOTA.begin( ESPUI.WebServer() );
   }
   initIdleStats();
   initDiagnostics();
