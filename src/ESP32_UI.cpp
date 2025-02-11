@@ -208,26 +208,28 @@ void initESPUI ( void ) {
     char ibuffer[64];
     File f1 = SPIFFS.open( "/lightbar.json", "r" );    //open source file to read
     if ( !f1 ){
-      Serial.println( "lightbar.json not available for copying" );  //debug
+      Serial.println( "/lightbar.json not available for copying" );
     }
 
     File f2 = SPIFFS.open( downloadFilename, "w" );    //open destination file to write
     if ( !f2 ){
-     Serial.print( downloadFilename );    //debug
-     Serial.println( " could not be created" );    //debug
+      Serial.print( downloadFilename );
+      Serial.println( " could not be created" );
+      return;
     }
       
     while ( f1.available() > 0 ){
       byte i = f1.readBytes( ibuffer, 64 ); // i = number of bytes placed in buffer from file f1
-      f2.write(( uint8_t* )ibuffer, i );               // write i bytes from buffer to file f2
+      f2.write(( uint8_t* )ibuffer, i );    // write i bytes from buffer to file f2
+      return;
     }
     
     f2.close();
     f1.close();
     Serial.println( "File creation successful, downloading..." );     //debug
-
+    delay( 5 );
     request->send( SPIFFS, downloadFilename, "application/json", true );
-    delay( 25 );
+    delay( 5 );
     SPIFFS.remove( downloadFilename );
 
   } );
