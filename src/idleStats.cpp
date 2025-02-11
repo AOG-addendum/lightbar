@@ -26,8 +26,8 @@
 
 #include "main.hpp"
 
-volatile uint16_t idleCtrCore0 = 0;
-volatile uint16_t idleCtrCore1 = 0;
+uint16_t idleCtrCore0 = 0;
+uint16_t idleCtrCore1 = 0;
 
 bool core0IdleWorker( void ) {
   static TickType_t xLastWakeTime0;
