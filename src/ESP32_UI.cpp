@@ -209,6 +209,7 @@ void initESPUI ( void ) {
     File f1 = SPIFFS.open( "/lightbar.json", "r" );    //open source file to read
     if ( !f1 ){
       Serial.println( "/lightbar.json not available for copying" );
+      return;
     }
 
     File f2 = SPIFFS.open( downloadFilename, "w" );    //open destination file to write
@@ -217,12 +218,17 @@ void initESPUI ( void ) {
       Serial.println( " could not be created" );
       return;
     }
-      
+
+    uint8_t blocks = 0;
+    Serial.print( "Copied " );
     while ( f1.available() > 0 ){
       byte i = f1.readBytes( ibuffer, 64 ); // i = number of bytes placed in buffer from file f1
       f2.write(( uint8_t* )ibuffer, i );    // write i bytes from buffer to file f2
-      return;
+      blocks += 1;
+      Serial.print( blocks );
+      Serial.print( " " );
     }
+    Serial.println( "blocks" );
     
     f2.close();
     f1.close();
