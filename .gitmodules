@@ -4,3 +4,6 @@
 [submodule "lib/ESPUI"]
 	path = lib/ESPUI
 	url = https://github.com/s00500/ESPUI
+[submodule "tools/EspArduinoExceptionDecoder"]
+	path = tools/EspArduinoExceptionDecoder
+	url = https://github.com/janLo/EspArduinoExceptionDecoder
