@@ -1,39 +1,22 @@
-# esp32-aog
-Software to control the tractor from AgOpenGPS.
+# esp32-lightbar
+Software to display a lightbar using AgOpenGPS.
 
-# Updates/changes from [eringerli](https://github.com/eringerli/esp32-aog) codebase
-## Note some docs in the Readme are no longer correct, it is being worked on.
-
-* All GPIOs are hardcoded because the WebUI was overloaded from all the features being added
-* A configurable speed safety will disengage autosteer when traveling too fast
-* Added Ackerman, selectable if wheel with WAS is on the inside track or outside track when the wheel angle is above zero
-* A steering wheel input GPIO will disengage autosteer if steering wheel is turned, you can set trigger time window and total triggers
 * The ESP32 will create a Wifi hotspot and try to connect to the main Wifi. If main Wifi is found, ESP32 hotspot will discontinue. If ESP32 hotspot is connected to, main Wifi will no longer try to connect
-* ESP32 hotspot will be called Steer Module XXXXXX. with the MAC address of the ESP32 appended to avoid confusion between multiple ESP32s
-* Only one ESP32 can connect to the same Wifi. The ESP32 pings any existing device at 192.168.xxx.77 and disconnects if a device is already on the network. This way AOG does not receive conflicting info from 2 different machine modules. Yes, this actually happens!!!
-* If the Wifi name is shorter than the default, it will work as expected.
-* Valves with 2 coils have option of using dither
-* The voltage reference can be set for 3.3V applications, or lower
-* Faults will be recorded if autosteer is engaged without steering valve power, or fuse is blown, or WAS is shorted
-* Steering valve diagnostics are shown in WebUI
-* The ADS1115 A2 and A3 input are repurposed for steering valve voltage and motor current
+* ESP32 hotspot will be called Lightbar Module XXXXXX. with the MAC address of the ESP32 appended to avoid confusion between multiple ESP32s
 
 # Features
-* complete rewrite of the software for the physical part of AgOpenGPS. Uses a multi-threaded aproach. Tries to use other libraries as much as possible and is clearly structured with meaningful names
+* Uses a multi-threaded aproach. Tries to use other libraries as much as possible and is clearly structured with meaningful names
 * Cool and comfortable WebUI, automatically creates a hotspot on first start, the Wifi to connect to can be configured in the WebUI
-* Everything is configured from the WebUI. Sane defaults are used: everything has to be activated to work, like PWM-drivers or IMUs
+* Everything is configured from the WebUI.
 * Settings are stored into flash on user request. New features normally require an apply&reboot cycle to activate, the WebUI clearly shows this.
-* Status and values like uptime, processor load, and wheel angle are actualised in realtime in the WebUI
-* CAN-bus/J1939-connection possible, so the workswitch can be configured to react on PTO or motor RPMs or hitch positions
-* The wheel angle sensor can be configured via ADS1115 to enable single or differential measurement
-* A new mode for the wheel angle sensor is introduced, to calculate out the unlinearities if connected with two arms to the tie rod
-* A complete new PID-controller is implemented
-* All analog measurements are digitaly low-pass filtered (2. order butterworth or similar), this removes a lot of noise.
+* Uses ESP32 tasks for updating Neopixel, not assembly code designed for Arduino family of chips
+* JSON config downloads will be named after Hostname to reduce confusion from multiple downloads
+* Lightbar distance per XTE will self-correct for erroneous values.
+* Has CDS input for brightness sensing and potentiometer for user adjustment
 
 # Caveats
-* For best results, use the machine control board found in the [Github repo](https://github.com/AOG-addendum/PCB-modules/tree/master/Machine%20control)
-* **As the WebUI is quite taxing on the Websocket implementation; the ESP32 can crash without warning if left too long connected. Without open connection to a browser, no such crashes are documented. On my hardware, a longtime stresstest of more the five days of uptime was completed successfully, if the tab with the WebUI is closed after using it.** The cause of the crashes is in the implementation of the used TCP-stack/Websocket-API. Not much can be done about it, as it is the default implementation which comes with framework (ESPAsyncWebServer), is really fast/performant and is used by the library to generate the WebUI.
-* No configuration is done in AgOpenGPS, everything is configured in the WebUI. Technical explanation: some of the settings in AgOpenGPS have the wrong range (like the counts per degree or center of the wheel angle sensor if connected by ADS1115), or are used for different things (like the D-part of the PID controller is used in newer versions for sidehill draft compensation). General rule: if it is configurable in the WebUI, the value in AgOpenGPS doesn't matter.
+* For best results, use the lightbar board found in the [Github repo](https://github.com/AOG-addendum/PCB-modules/tree/master/Machine%20control)
+* **As the WebUI is quite taxing on the Websocket implementation; the ESP32 can crash without warning if left connected too long. Without open connection to a browser, no such crashes are documented. On my hardware, a longtime stresstest of more the five days of uptime was completed successfully, if the tab with the WebUI is closed after using it.** The cause of the crashes is in the implementation of the used TCP-stack/Websocket-API. Not much can be done about it, as it is the default implementation which comes with framework (ESPAsyncWebServer), is really fast/performant and is used by the library to generate the WebUI.
 
 # Schematics
 
@@ -45,13 +28,11 @@ An example of a itemlist is below:
 
 Amount | Id | Supplier | Description
 --- | ---- | --------- | ----------------------------------------------------------------------------
-1x  |      | Espressif | DevKitC Board
-1x  | 1085 | Adafruit  | ADS1115 16-Bit ADC - 4 Channel with Programmable Gain Amplifier
-1x  |      | PCB       | PCB from [here](https://github.com/AOG-addendum/PCB-modules/tree/master/Machine%20control) name: Machine control Rev x.fzz; use latest version
-1x  |      | Various   | Rotary Angle Sensor, preferably hall effect and with 5V supply
+1x  |      | Adafruit  | QT Py ESP32-S3 Board
+1x  |      | PCB       | PCB from [here](https://github.com/AOG-addendum/PCB-modules/tree/master/Machine%20control) name: Lightbar Rev x.fzz; use latest version
 
 ## PCB module
-All docs you need should be in the machine control PCB repo. If parts are missing in the Readme, you can install Fritzing and open the .fzz file, the parts should be listed with the proper values.
+All docs you need should be in the Lightbar PCB repo. If parts are missing in the Readme, you can install Fritzing and open the .fzz file, the parts should be listed with the proper values.
 
 ## Windows
 Follow this [guide](http://iot-bits.com/esp32/esp32-flash-download-tool-tutorial/), but enter the files/addresses as below:
@@ -98,14 +79,14 @@ Atom.io does no longer work with PlatformIO as described previously. This code b
 ### Downloading the repository
 1. open a folder in the explorer, preferably not too deep inside the drive. `C:\` or a folder under it should work
 1. right click on it and choose "Git Bash Here"
-1. enter `git clone --recursive https://github.com/eringerli/esp32-aog.git`
+1. enter `git clone --recursive https://github.com/AOG-addendum/lightbar`
 
 ### Compiling
 1. right click the created folder and open with VS Code
 1. wait for PlatformIO to finish loading tasks (status is shown along the bottom)
 1. click build (the button with the tick along the bottom), the missing dependencies should be installed automatically
 
-### Upload to the ESP32
+### Upload to the ESP32-S3
 1. connect the ESP32 over USB
 1. click on upload (the button with the arrow)
 
@@ -125,7 +106,7 @@ This takes care of all the required libraries and uploads it to a connected ESP3
 
 All configuration is done in the WebUI. To connect to the created hotspot of the esp32, using a mobile device is normally the simplest solution.
 
-To open a web page of the ESP32, type 192.168.xxx.77 into your web browser if using a dedicated router Wifi, or 192.168.1.1 if using the built in hotspot on initial setup. Alternatively, connect the ESP32 to the USB and open a monitor on it. It should print the SSID/IP address when booting.
+To open a web page of the ESP32, type 192.168.xxx.83 into your web browser if using a dedicated router Wifi, or 192.168.1.1 if using the built in hotspot on initial setup. Alternatively, connect the ESP32 to the USB and open a monitor on it. It should print the SSID/IP address when booting.
 
 After login in to the WebUI, you can then change the wifi to whatever you like. The esp32 tries to login, and if that fails, makes a new hotspot with the given ssid/password. 
 
