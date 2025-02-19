@@ -176,7 +176,7 @@ void initESPUI ( void ) {
   }
 
   char lightbarDownloadHTML [100];
-  sprintf( downloadFilename, "/%s.json", lightbarConfig.hostname );
+  sprintf( downloadFilename, "/%s lightbar.json", lightbarConfig.hostname );
   sprintf( lightbarDownloadHTML, "<a href='%s'>Configuration</a>", downloadFilename );
   // Default Configurations Tab
   {
