@@ -72,6 +72,7 @@ struct LightbarConfig {
   bool steerSwitchActiveLow = false;
   bool steerSwitchIsMomentary = false;
 
+  uint8_t numberOfPixels = 89;         // Odd number, dont use 0
   uint8_t cmPerLightbarPixel = 16;     // Must be a multiple of cmPerDistInt
   uint8_t cmPerDistInc = 2;            // The number of centimeters represented by a change in 1 of the AOG cross track error byte
 

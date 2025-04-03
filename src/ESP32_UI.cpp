@@ -15,6 +15,7 @@ uint16_t labelBuildDate;
 uint16_t labelSwitchStates;
 uint16_t widgetCmPerLightbarPixel;
 uint16_t widgetCmPerDistInc;
+uint16_t widgetNumberOfPixels;
 char downloadFilename[50];
 
 void setResetButtonToRed() {
@@ -152,6 +153,25 @@ void initESPUI ( void ) {
   {
     uint16_t tab = ESPUI.addControl( ControlType::Tab, "Lightbar", "Lightbar" );
 
+    {
+      widgetNumberOfPixels = ESPUI.addControl( ControlType::Number, "Number of Pixels (odd number only)", String( lightbarConfig.numberOfPixels ), ControlColor::Peterriver, tab,
+      []( Control * control, int id ) {
+        uint8_t pixels = control->value.toInt();
+        if(( pixels % 2 ) != 1 ){ // if not odd number
+          if( lightbarConfig.numberOfPixels > pixels ){
+            lightbarConfig.numberOfPixels = pixels - 1; // value less than previous, decrement by 1
+          } else {
+            lightbarConfig.numberOfPixels = pixels + 1; // value more than previous, increment by 1
+          }
+          ESPUI.updateNumber( widgetNumberOfPixels, lightbarConfig.numberOfPixels );
+        } else {
+          lightbarConfig.numberOfPixels = pixels;
+        }
+      } );
+      ESPUI.addControl( ControlType::Min, "Min", "0", ControlColor::Peterriver, widgetNumberOfPixels );
+      ESPUI.addControl( ControlType::Max, "Max", "255", ControlColor::Peterriver, widgetNumberOfPixels );
+      ESPUI.addControl( ControlType::Step, "Step", "2", ControlColor::Peterriver, widgetNumberOfPixels );
+    }
     {
       widgetCmPerLightbarPixel = ESPUI.addControl( ControlType::Number, "Cm Per Lightbar Pixel", String( lightbarConfig.cmPerLightbarPixel ), ControlColor::Peterriver, tab,
       []( Control * control, int id ) {

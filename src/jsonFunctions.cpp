@@ -105,6 +105,7 @@ json parseLightbarConfigToJson( const LightbarConfig& config ) {
   j["connection"]["baudrate"] = config.baudrate;
   j["connection"]["enableOTA"] = config.enableOTA;
 
+  j["lightbar"]["numberOfPixels"] = config.numberOfPixels;
   j["lightbar"]["cmPerPixel"] = config.cmPerLightbarPixel;
   j["lightbar"]["cmPerDistanceIncrement"] = config.cmPerDistInc;
 
@@ -140,6 +141,7 @@ void parseJsonToLightbarConfig( json& j, LightbarConfig& config ) {
       config.baudrate = j.value( "/connection/baudrate"_json_pointer, lightbarConfigDefaults.baudrate );
       config.enableOTA = j.value( "/connection/enableOTA"_json_pointer, lightbarConfigDefaults.enableOTA );
 
+      config.numberOfPixels = j.value( "/lightbar/numberOfPixels"_json_pointer, lightbarConfigDefaults.numberOfPixels );
       config.cmPerLightbarPixel = j.value( "/lightbar/cmPerPixel"_json_pointer, lightbarConfigDefaults.cmPerLightbarPixel );
       config.cmPerDistInc = j.value( "/lightbar/cmPerDistanceIncrement"_json_pointer, lightbarConfigDefaults.cmPerDistInc );
 
