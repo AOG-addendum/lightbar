@@ -24,7 +24,7 @@
 
 #include <WiFi.h>
 #include <WiFiMulti.h>
-#include "SPIFFS.h"
+#include "LittleFS.h"
 
 #include <HTTPClient.h>
 
