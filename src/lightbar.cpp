@@ -38,11 +38,8 @@ AsyncUDP udpLocalPort;
 
 void getBrightnessLevels(){
   brightness.cdsCell = analogRead( lightbarConfig.gpioCDS ) / 16;
-  int16_t maxBrightness = 255 - brightness.cdsCell;
-  int16_t minBrightness = -brightness.cdsCell;
   brightness.potentiometer = analogRead( lightbarConfig.gpioPotentiometer ) / 16;
-  brightness.ledOutput = map( brightness.potentiometer, 0, 255, minBrightness, maxBrightness );
-  brightness.ledOutput += brightness.cdsCell;
+  brightness.ledOutput = brightness.potentiometer + ( brightness.cdsCell - 128 );
   brightness.ledOutput = constrain( brightness.ledOutput, 0, 255 );
 }
 
