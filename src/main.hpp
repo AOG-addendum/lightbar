@@ -85,9 +85,9 @@ extern LightbarConfig lightbarConfig, lightbarConfigDefaults;
 
 struct Brightness {
 
-  uint16_t potentiometer = 0;
-  uint16_t cdsCell = 0;
-  uint16_t ledOutput = 0;
+  int16_t potentiometer = 0;
+  int16_t cdsCell = 0;
+  int16_t ledOutput = 0;
 
 };
 extern Brightness brightness;
