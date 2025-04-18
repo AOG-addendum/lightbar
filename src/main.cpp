@@ -79,7 +79,7 @@ void setup( void ) {
 
   pinMode( 38, OUTPUT );
   digitalWrite( 38, HIGH );
-  pixel[0] = { 0, NP_RGB( 255, 0, 0 )};
+  pixel[0] = { 0, NP_RGB( 128, 0, 0 )};
   neopixel_SetPixel( onBoardNeopixel, pixel, ONBOARDPIXEL );
 
   initWiFi();
@@ -92,11 +92,6 @@ void setup( void ) {
   Serial.println( WiFi.getMode() == WIFI_AP ? "Station" : "Client" );
   Serial.print( "IP address: " );
   Serial.println( WiFi.getMode() == WIFI_AP ? WiFi.softAPIP() : WiFi.localIP() );
-
-  if( WiFi.getMode() == WIFI_STA ){
-    pixel[0] = { 0, NP_RGB( 0, 255, 0 )};
-    neopixel_SetPixel( onBoardNeopixel, pixel, ONBOARDPIXEL );
-  }
 
 
   /*

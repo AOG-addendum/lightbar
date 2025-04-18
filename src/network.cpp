@@ -21,12 +21,12 @@ void WiFiStationGotIP( WiFiEvent_t event, WiFiEventInfo_t info ){
     WiFi.softAPdisconnect( true );
     WiFi.mode( WIFI_MODE_STA );
   }
-  digitalWrite( lightbarConfig.gpioApMode, HIGH );
   WiFiWasConnected = true;
 }
 
 void WiFiStationDisconnected( WiFiEvent_t event, WiFiEventInfo_t info ){
-  digitalWrite( lightbarConfig.gpioApMode, LOW );
+  pixel[0] = { 0, NP_RGB( 128, 0, 0 )};
+  neopixel_SetPixel( onBoardNeopixel, pixel, ONBOARDPIXEL );
   if( WiFiWasConnected == true ){
     WiFi.disconnect( true );
     if( !WiFi.config( INADDR_NONE, INADDR_NONE, INADDR_NONE )){
@@ -43,7 +43,7 @@ void WiFiStationDisconnected( WiFiEvent_t event, WiFiEventInfo_t info ){
 void WiFiStationConnected( WiFiEvent_t event, WiFiEventInfo_t info ){
   WiFi.config( INADDR_NONE, INADDR_NONE, INADDR_NONE );
   WiFi.setHostname( lightbarConfig.hostname );
-  pixel[0] = { 0, NP_RGB( 0, 255, 0 )};
+  pixel[0] = { 0, NP_RGB( 0, 128, 0 )};
   neopixel_SetPixel( onBoardNeopixel, pixel, ONBOARDPIXEL );
 }
 
@@ -77,13 +77,20 @@ void initWiFi( void ){
     delay( 500 );
     Serial.print( "." );
     timeout--;
-    digitalWrite( lightbarConfig.gpioApMode, ! digitalRead( lightbarConfig.gpioApMode ) );
+    if(( timeout % 2 ) == true ){
+      pixel[0] = { 0, NP_RGB( 128, 0, 0 )};
+      neopixel_SetPixel( onBoardNeopixel, pixel, ONBOARDPIXEL );
+    } else {
+      pixel[0] = { 0, NP_RGB( 0, 0, 0 )};
+      neopixel_SetPixel( onBoardNeopixel, pixel, ONBOARDPIXEL );
+    }
   } while( timeout && WiFi.status() != WL_CONNECTED );
   // not connected -> create hotspot
   if( WiFi.status() != WL_CONNECTED ) {
     WiFi.disconnect( true );
 
-    digitalWrite( lightbarConfig.gpioApMode, LOW );
+    pixel[0] = { 0, NP_RGB( 0, 0, 128 )};
+    neopixel_SetPixel( onBoardNeopixel, pixel, ONBOARDPIXEL );
 
     apName = String( "Lightbar " );
     apName += WiFi.macAddress();

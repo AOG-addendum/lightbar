@@ -66,7 +66,6 @@ struct LightbarConfig {
   bool enableOTA = false;
 
   uint8_t gpioSteerswitch = 6;
-  uint8_t gpioApMode = 9;
   uint8_t gpioCDS = 8;
   uint8_t gpioPotentiometer = 5;
   bool steerSwitchActiveLow = false;
