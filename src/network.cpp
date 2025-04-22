@@ -25,8 +25,8 @@ void WiFiStationGotIP( WiFiEvent_t event, WiFiEventInfo_t info ){
 }
 
 void WiFiStationDisconnected( WiFiEvent_t event, WiFiEventInfo_t info ){
-  pixel[0] = { 0, NP_RGB( 128, 0, 0 )};
-  neopixel_SetPixel( onBoardNeopixel, pixel, ONBOARDPIXEL );
+  onBoardPixel[0] = { 0, NP_RGB( 128, 0, 0 )};
+  neopixel_SetPixel( onBoardPixelContext, onBoardPixel, ONBOARDPIXEL );
   if( WiFiWasConnected == true ){
     WiFi.disconnect( true );
     if( !WiFi.config( INADDR_NONE, INADDR_NONE, INADDR_NONE )){
@@ -43,8 +43,8 @@ void WiFiStationDisconnected( WiFiEvent_t event, WiFiEventInfo_t info ){
 void WiFiStationConnected( WiFiEvent_t event, WiFiEventInfo_t info ){
   WiFi.config( INADDR_NONE, INADDR_NONE, INADDR_NONE );
   WiFi.setHostname( lightbarConfig.hostname );
-  pixel[0] = { 0, NP_RGB( 0, 128, 0 )};
-  neopixel_SetPixel( onBoardNeopixel, pixel, ONBOARDPIXEL );
+  onBoardPixel[0] = { 0, NP_RGB( 0, 128, 0 )};
+  neopixel_SetPixel( onBoardPixelContext, onBoardPixel, ONBOARDPIXEL );
 }
 
 void WiFiAPStaConnected( WiFiEvent_t event, WiFiEventInfo_t info ){
@@ -78,19 +78,19 @@ void initWiFi( void ){
     Serial.print( "." );
     timeout--;
     if(( timeout % 2 ) == true ){
-      pixel[0] = { 0, NP_RGB( 128, 0, 0 )};
-      neopixel_SetPixel( onBoardNeopixel, pixel, ONBOARDPIXEL );
+      onBoardPixel[0] = { 0, NP_RGB( 128, 0, 0 )};
+      neopixel_SetPixel( onBoardPixelContext, onBoardPixel, ONBOARDPIXEL );
     } else {
-      pixel[0] = { 0, NP_RGB( 0, 0, 0 )};
-      neopixel_SetPixel( onBoardNeopixel, pixel, ONBOARDPIXEL );
+      onBoardPixel[0] = { 0, NP_RGB( 0, 0, 0 )};
+      neopixel_SetPixel( onBoardPixelContext, onBoardPixel, ONBOARDPIXEL );
     }
   } while( timeout && WiFi.status() != WL_CONNECTED );
   // not connected -> create hotspot
   if( WiFi.status() != WL_CONNECTED ) {
     WiFi.disconnect( true );
 
-    pixel[0] = { 0, NP_RGB( 0, 0, 128 )};
-    neopixel_SetPixel( onBoardNeopixel, pixel, ONBOARDPIXEL );
+    onBoardPixel[0] = { 0, NP_RGB( 0, 0, 128 )};
+    neopixel_SetPixel( onBoardPixelContext, onBoardPixel, ONBOARDPIXEL );
 
     apName = String( "Lightbar " );
     apName += WiFi.macAddress();

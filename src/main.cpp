@@ -48,8 +48,8 @@ Machine machine;
 AsyncUDP udpLocalPort;
 
 #define ONBOARDPIXEL 1
-tNeopixel pixel[ONBOARDPIXEL] = { };
-tNeopixelContext onBoardNeopixel = neopixel_Init( ONBOARDPIXEL, 39 );
+tNeopixel onBoardPixel[ONBOARDPIXEL] = { };
+tNeopixelContext onBoardPixelContext = neopixel_Init( ONBOARDPIXEL, 39 );
 
 const byte DNS_PORT = 53;
 IPAddress apIP( 192, 168, 1, 1 );
@@ -78,8 +78,8 @@ void setup( void ) {
 
   pinMode( 38, OUTPUT );
   digitalWrite( 38, HIGH );
-  pixel[0] = { 0, NP_RGB( 128, 0, 0 )};
-  neopixel_SetPixel( onBoardNeopixel, pixel, ONBOARDPIXEL );
+  onBoardPixel[0] = { 0, NP_RGB( 128, 0, 0 )};
+  neopixel_SetPixel( onBoardPixelContext, onBoardPixel, ONBOARDPIXEL );
 
   initWiFi();
   apIP = WiFi.localIP();

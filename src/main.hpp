@@ -46,8 +46,8 @@ extern uint16_t widgetCmPerDistInc;
 
 extern uint16_t labelStatusOutput;
 #define ONBOARDPIXEL 1
-extern tNeopixel pixel[ONBOARDPIXEL];
-extern tNeopixelContext onBoardNeopixel;
+extern tNeopixel onBoardPixel[ONBOARDPIXEL];
+extern tNeopixelContext onBoardPixelContext;
 
 ///////////////////////////////////////////////////////////////////////////
 // Configuration
