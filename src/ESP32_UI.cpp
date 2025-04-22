@@ -167,6 +167,15 @@ void initESPUI ( void ) {
         } else {
           lightbarConfig.numberOfPixels = pixels;
         }
+        neopixel_Deinit( lightbarPixels );
+        if( lightbarConfig.ledTest == true ){
+          uint8_t pixelCount = pixels * 2; // clear pixels that may be present beyond the last pixel
+          tNeopixel pixel[pixelCount] = { };
+          lightbarPixels = neopixel_Init( pixelCount, lightbarConfig.gpioLightbarPixels );
+        } else {
+          tNeopixel pixel[lightbarConfig.numberOfPixels] = { };
+          lightbarPixels = neopixel_Init( lightbarConfig.numberOfPixels, lightbarConfig.gpioLightbarPixels );
+        }
       } );
       ESPUI.addControl( ControlType::Min, "Min", "0", ControlColor::Peterriver, widgetNumberOfPixels );
       ESPUI.addControl( ControlType::Max, "Max", "255", ControlColor::Peterriver, widgetNumberOfPixels );
@@ -191,6 +200,18 @@ void initESPUI ( void ) {
           ESPUI.updateNumber( widgetCmPerDistInc, lightbarConfig.cmPerDistInc );
         }
         checkLightbarMultiplier();
+      } );
+    }
+    {
+      ESPUI.addControl( ControlType::Switcher, "LED test", lightbarConfig.ledTest ? "1" : "0", ControlColor::Peterriver, tab,
+      []( Control * control, int id ) {
+        lightbarConfig.ledTest = control->value.toInt() == 1;
+        if( lightbarConfig.ledTest == true ){
+          neopixel_Deinit( lightbarPixels );
+          uint8_t pixelCount = ( lightbarConfig.numberOfPixels * 2 ); // clear pixels that may be present beyond the last pixel
+          tNeopixel pixel[pixelCount] = { };
+          lightbarPixels = neopixel_Init( pixelCount, lightbarConfig.gpioLightbarPixels );
+        }
       } );
     }
   }

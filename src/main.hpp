@@ -49,6 +49,10 @@ extern uint16_t labelStatusOutput;
 extern tNeopixel onBoardPixel[ONBOARDPIXEL];
 extern tNeopixelContext onBoardPixelContext;
 
+extern tNeopixelContext lightbarPixels;
+extern TaskHandle_t lightTestHandle;
+extern void lightTest10Hz( void* z );
+
 ///////////////////////////////////////////////////////////////////////////
 // Configuration
 ///////////////////////////////////////////////////////////////////////////
@@ -68,12 +72,14 @@ struct LightbarConfig {
   uint8_t gpioSteerswitch = 6;
   uint8_t gpioCDS = 8;
   uint8_t gpioPotentiometer = 5;
+  uint8_t gpioLightbarPixels = 35;
   bool steerSwitchActiveLow = false;
   bool steerSwitchIsMomentary = false;
 
   uint8_t numberOfPixels = 89;         // Odd number, dont use 0
   uint8_t cmPerLightbarPixel = 16;     // Must be a multiple of cmPerDistInt
   uint8_t cmPerDistInc = 2;            // The number of centimeters represented by a change in 1 of the AOG cross track error byte
+  bool ledTest = false;                // test the number of pixels
 
   uint16_t aogPortSendFrom = 5577;
   uint16_t aogPortListenTo = 8888;

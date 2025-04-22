@@ -27,12 +27,11 @@
 #include <freertos/task.h>
 #include "esp_log.h"
 #include "driver/gpio.h"
-#include "neopixel.h"
 
 #include "main.hpp"
 #include "jsonFunctions.hpp"
 
-#define GPIO_LED 35
+void lightTest10Hz( void* z );
 
 void getBrightnessLevels(){
   brightness.cdsCell = analogRead( lightbarConfig.gpioCDS ) / 16;
@@ -44,7 +43,8 @@ void getBrightnessLevels(){
 void lightbarWorker1Hz( void* z ) {
   constexpr TickType_t xFrequency = 200;
   TickType_t xLastWakeTime = xTaskGetTickCount();
-  tNeopixelContext neopixel = neopixel_Init( lightbarConfig.numberOfPixels, GPIO_LED );
+  bool ledState = true;
+
   for( ;; ) {
 
     getBrightnessLevels();
@@ -53,8 +53,21 @@ void lightbarWorker1Hz( void* z ) {
     uint8_t cmPerLBPixel = lightbarConfig.cmPerLightbarPixel / lightbarConfig.cmPerDistInc;
     int8_t level = constrain( (int8_t)( steerSetpoints.crossTrackError / cmPerLBPixel ), -centerpixel, centerpixel);
     int8_t n = level + centerpixel;
-    tNeopixel pixel[lightbarConfig.numberOfPixels] = { };
-    if( steerSetpoints.enabled == false ){
+    if( lightbarConfig.ledTest == true ){
+      tNeopixel pixel[lightbarConfig.numberOfPixels * 2] = { };
+      ledState = !ledState;
+      for ( uint8_t i = 0; i < ( lightbarConfig.numberOfPixels * 2 ); i++ ){
+        if( i == ( lightbarConfig.numberOfPixels - 1 ) ){
+          if( ledState ){
+            pixel[i] = { i, NP_RGB( 255, 255, 255 )};
+          } else pixel[i] = { i, NP_RGB( 0, 0, 0 )};
+        } else {
+          pixel[i] = { i, NP_RGB( 0, 0, 0 )};
+        }
+      }
+      neopixel_SetPixel( lightbarPixels, pixel, lightbarConfig.numberOfPixels * 2 );
+    } else if( steerSetpoints.enabled == false ){
+      tNeopixel pixel[lightbarConfig.numberOfPixels] = { };
       for ( uint8_t i = 0; i < lightbarConfig.numberOfPixels; i++ ){
         if ( i == centerpixel ){ //Center
           pixel[i] = { i, NP_RGB( 0, 0, brightness.ledOutput )}; // blue
@@ -66,7 +79,9 @@ void lightbarWorker1Hz( void* z ) {
           pixel[i] = { i, NP_RGB( 0, 0, 0 )};
         }
       }
+      neopixel_SetPixel( lightbarPixels, pixel, lightbarConfig.numberOfPixels );
     } else {
+      tNeopixel pixel[lightbarConfig.numberOfPixels] = { };
       for ( uint8_t i = 0; i < lightbarConfig.numberOfPixels; i++ ){
         if ( i == centerpixel && i == n ){//Center
           pixel[i] = { i, NP_RGB( 0, 0, brightness.ledOutput )}; // blue
@@ -78,50 +93,53 @@ void lightbarWorker1Hz( void* z ) {
           pixel[i] = { i, NP_RGB( 0, 0, 0 )};
         }
       }
+      neopixel_SetPixel( lightbarPixels, pixel, lightbarConfig.numberOfPixels );
     }
-    neopixel_SetPixel( neopixel, pixel, lightbarConfig.numberOfPixels );
     vTaskDelay( pdMS_TO_TICKS( 50 ));
     vTaskDelayUntil( &xLastWakeTime, xFrequency );
   }
 }
 
-void initLightbar() {
-
-  pinMode(( uint8_t )lightbarConfig.gpioCDS, INPUT );
-  pinMode(( uint8_t ) lightbarConfig.gpioPotentiometer, INPUT );
+void lightbarRGBTest( void* z ) {
   getBrightnessLevels();
-  pinMode( GPIO_LED, OUTPUT );
-  tNeopixelContext neopixel = neopixel_Init( lightbarConfig.numberOfPixels, GPIO_LED );
-  tNeopixel pixel[lightbarConfig.numberOfPixels] = { };
+  tNeopixel pixel[lightbarConfig.numberOfPixels * 2] = { };
 
   for ( uint8_t i = 0; i < lightbarConfig.numberOfPixels; i++ ){
     pixel[i] = { i, NP_RGB( brightness.ledOutput, 0, 0 )}; //red
   }
-  neopixel_SetPixel( neopixel, pixel, lightbarConfig.numberOfPixels );
+  neopixel_SetPixel( lightbarPixels, pixel, lightbarConfig.numberOfPixels );
   Serial.println("red test");
   vTaskDelay( 1000 );
 
   for ( uint8_t i = 0; i < lightbarConfig.numberOfPixels; i++ ){
     pixel[i] = { i, NP_RGB( 0, brightness.ledOutput, 0 )}; // green
   }
-  neopixel_SetPixel( neopixel, pixel, lightbarConfig.numberOfPixels );
+  neopixel_SetPixel( lightbarPixels, pixel, lightbarConfig.numberOfPixels );
   Serial.println("green test");
   vTaskDelay( 1000 );
 
   for ( uint8_t i = 0; i < lightbarConfig.numberOfPixels; i++ ){
     pixel[i] = { i, NP_RGB( 0, 0, brightness.ledOutput )}; //blue
   }
-  neopixel_SetPixel( neopixel, pixel, lightbarConfig.numberOfPixels );
+  neopixel_SetPixel( lightbarPixels, pixel, lightbarConfig.numberOfPixels );
   Serial.println("blue test");
   vTaskDelay( 1000 );
 
   for ( uint8_t i = 0; i < lightbarConfig.numberOfPixels; i++ ){
     pixel[i] = { i, NP_RGB( 0, 0, 0 )};
   }
-  neopixel_SetPixel( neopixel, pixel, lightbarConfig.numberOfPixels );
-  Serial.println("Led off test");
-  neopixel_Deinit(neopixel);
+  neopixel_SetPixel( lightbarPixels, pixel, lightbarConfig.numberOfPixels );
+  Serial.println("LED test off");
   vTaskDelay( 1000 );
 
   xTaskCreate( lightbarWorker1Hz, "lightbarWorker", 3096, NULL, 3, NULL );
+  vTaskDelete( NULL );
+}
+
+void initLightbar() {
+
+  pinMode(( uint8_t )lightbarConfig.gpioCDS, INPUT );
+  pinMode(( uint8_t ) lightbarConfig.gpioPotentiometer, INPUT );
+  
+  xTaskCreate( lightbarRGBTest, "lightbarRGBTest", 3096, NULL, 3, NULL );
 }

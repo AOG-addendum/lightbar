@@ -51,8 +51,11 @@ AsyncUDP udpLocalPort;
 tNeopixel onBoardPixel[ONBOARDPIXEL] = { };
 tNeopixelContext onBoardPixelContext = neopixel_Init( ONBOARDPIXEL, 39 );
 
+tNeopixelContext lightbarPixels;
+
 const byte DNS_PORT = 53;
 IPAddress apIP( 192, 168, 1, 1 );
+
 
 ///////////////////////////////////////////////////////////////////////////
 // external Libraries
@@ -80,6 +83,10 @@ void setup( void ) {
   digitalWrite( 38, HIGH );
   onBoardPixel[0] = { 0, NP_RGB( 128, 0, 0 )};
   neopixel_SetPixel( onBoardPixelContext, onBoardPixel, ONBOARDPIXEL );
+
+  pinMode( lightbarConfig.gpioLightbarPixels, OUTPUT );
+  lightbarPixels = neopixel_Init( lightbarConfig.numberOfPixels, lightbarConfig.gpioLightbarPixels );
+  initLightbar();
 
   initWiFi();
   apIP = WiFi.localIP();
@@ -141,7 +148,6 @@ void setup( void ) {
 
   initSwitches();
   initESPUI();
-  initLightbar();
 
   if( lightbarConfig.enableOTA ) {
     AsyncElegantOTA.begin( ESPUI.WebServer() );
