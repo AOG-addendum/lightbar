@@ -14,8 +14,8 @@ void diagnosticWorker1Hz( void* z ) {
     {
       String str;
       str.reserve( 30 );
-      str = "XTE : ";
-      str += ( int16_t ) steerSetpoints.crossTrackError;
+      str = "Requested angle : ";
+      str += ( int16_t ) steerSetpoints.requestedSteerAngle;
       str += "\nenabled : ";
       str += steerSetpoints.enabled ? "Yes" : "No";
       str += "\n";

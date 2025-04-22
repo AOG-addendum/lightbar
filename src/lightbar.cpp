@@ -51,7 +51,7 @@ void lightbarWorker1Hz( void* z ) {
 
     uint8_t centerpixel = ( lightbarConfig.numberOfPixels - 1 ) / 2;
     uint8_t cmPerLBPixel = lightbarConfig.cmPerLightbarPixel / lightbarConfig.cmPerDistInc;
-    int8_t level = constrain( (int8_t)( steerSetpoints.crossTrackError / cmPerLBPixel ), -centerpixel, centerpixel);
+    int8_t level = constrain( (int8_t)( steerSetpoints.requestedSteerAngle / cmPerLBPixel ), -centerpixel, centerpixel);
     int8_t n = level + centerpixel;
     if( lightbarConfig.ledTest == true ){
       tNeopixel pixel[lightbarConfig.numberOfPixels * 2] = { };

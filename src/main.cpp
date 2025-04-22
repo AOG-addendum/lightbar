@@ -126,7 +126,7 @@ void setup( void ) {
         case 0x7FFE: {
           steerSetpoints.enabled = data[7];
           steerSetpoints.crossTrackError = data[10] - 127;
-          steerSetpoints.requestedSteerAngle = (( double ) ((( int16_t ) data[8]) | (( int8_t ) data[9] << 8 ))) * 0.01; //horrible code to make negative doubles work
+          steerSetpoints.requestedSteerAngle = (( double ) ((( int16_t ) data[8]) | (( int8_t ) data[9] << 8 ))) * -0.01; //horrible code to make negative doubles work
 
           steerSetpoints.lastPacketReceived = millis();
 
