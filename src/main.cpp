@@ -45,8 +45,7 @@ Initialisation initialisation;
 SteerSetpoints steerSetpoints;
 Machine machine;
 
-portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
-SemaphoreHandle_t i2cMutex;
+AsyncUDP udpLocalPort;
 
 #define ONBOARDPIXEL 1
 tNeopixel pixel[ONBOARDPIXEL] = { };
@@ -107,6 +106,38 @@ void setup( void ) {
   * since it is transmitted in cleartext. Just add a username and password,
   * for example begin("ESPUI Control", "username", "password")
   */
+
+  if( udpLocalPort.listen( initialisation.portListenTo ) ) {
+    udpLocalPort.onPacket( []( AsyncUDPPacket packet ) {
+      uint8_t* data = packet.data();
+      if( data[1] + ( data[0] << 8 ) != 0x8081 ){
+          return;
+      }
+      uint16_t pgn = data[3] + ( data[2] << 8 );
+      // see pgn.xlsx in https://github.com/farmerbriantee/AgOpenGPS/tree/master/AgOpenGPS_Dev
+      switch( pgn ) {
+        case 0x7FFE: {
+          steerSetpoints.enabled = data[7];
+          steerSetpoints.crossTrackError = data[10] - 127;
+          steerSetpoints.requestedSteerAngle = (( double ) ((( int16_t ) data[8]) | (( int8_t ) data[9] << 8 ))) * 0.01; //horrible code to make negative doubles work
+
+          steerSetpoints.lastPacketReceived = millis();
+
+          if ( machine.steeringEnabled == steerSetpoints.enabled ) {
+            // clear mismatch flag when machine control and AOG agree again
+            machine.AogEngagedMismatch = false;
+          } else if( machine.AogEngagedMismatch == false ) {
+            // user pressed AOG autosteer button in software, we need to ACK so AOG listens to disengage
+            machine.steeringEnabled = steerSetpoints.enabled; // reflect AOG state, will ACKNOWLEDGE when returned to AOG
+          }
+        }
+        break;
+
+        default:
+          break;
+      }
+    } );
+  }
 
   initSwitches();
   initESPUI();

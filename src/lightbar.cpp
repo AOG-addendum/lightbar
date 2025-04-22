@@ -32,8 +32,6 @@
 #include "main.hpp"
 #include "jsonFunctions.hpp"
 
-AsyncUDP udpLocalPort;
-
 #define GPIO_LED 35
 
 void getBrightnessLevels(){
@@ -88,30 +86,6 @@ void lightbarWorker1Hz( void* z ) {
 }
 
 void initLightbar() {
-
-  if( udpLocalPort.listen( initialisation.portListenTo ) ) {
-    udpLocalPort.onPacket( []( AsyncUDPPacket packet ) {
-      uint8_t* data = packet.data();
-      if( data[1] + ( data[0] << 8 ) != 0x8081 ){
-          return;
-      }
-      uint16_t pgn = data[3] + ( data[2] << 8 );
-      // see pgn.xlsx in https://github.com/farmerbriantee/AgOpenGPS/tree/master/AgOpenGPS_Dev
-      switch( pgn ) {
-        case 0x7FFE: {
-          steerSetpoints.enabled = data[7];
-          steerSetpoints.crossTrackError = data[10] - 127;
-          steerSetpoints.requestedSteerAngle = (( double ) ((( int16_t ) data[8]) | (( int8_t ) data[9] << 8 ))) * 0.01; //horrible code to make negative doubles work
-
-          steerSetpoints.lastPacketReceived = millis();
-        }
-        break;
-
-        default:
-          break;
-      }
-    } );
-  }
 
   pinMode(( uint8_t )lightbarConfig.gpioCDS, INPUT );
   pinMode(( uint8_t ) lightbarConfig.gpioPotentiometer, INPUT );
