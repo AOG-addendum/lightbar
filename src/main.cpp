@@ -108,6 +108,7 @@ void setup( void ) {
   * for example begin("ESPUI Control", "username", "password")
   */
 
+  initSwitches();
   initESPUI();
   initLightbar();
 

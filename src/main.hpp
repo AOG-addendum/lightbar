@@ -115,6 +115,8 @@ extern SteerSetpoints steerSetpoints;
 
 struct Machine {
   bool steeringEnabled = false; // ESP32 internal steering state > sent to AOG
+  time_t lastAutosteerMillis = 0;
+  bool AogEngagedMismatch = false;
 };
 extern Machine machine;
 
@@ -133,4 +135,5 @@ extern void initESPUI();
 extern void initIdleStats();
 extern void initWiFi();
 extern void initLightbar();
+extern void initSwitches();
 extern void initDiagnostics();

@@ -32,17 +32,36 @@
 
 AsyncUDP udpSendFrom;
 
-constexpr time_t Timeout = 1000;
-time_t lastSwitchChangeMillis;
-
-time_t switchChangeMillis = millis();
-
-void autosteerWorker10Hz( void* z ) {
-  constexpr TickType_t xFrequency = 100;
+void autosteerSwitchesWorker100Hz( void* z ) {
+  constexpr TickType_t xFrequency = 10;
   TickType_t xLastWakeTime = xTaskGetTickCount();
+  bool previousState;
+  bool switchState;
+
+  switchState = digitalRead( ( uint8_t )lightbarConfig.gpioSteerswitch ); // initialize switch state on startup
 
   for( ;; ) {
-
+    bool state = digitalRead( ( uint8_t )lightbarConfig.gpioSteerswitch);
+    if( state != previousState ){
+      machine.lastAutosteerMillis = millis();
+      previousState = state;
+    }
+    if( millis() - machine.lastAutosteerMillis > 50 and switchState != state ){
+      switchState = state;
+      machine.AogEngagedMismatch = true;
+      if( lightbarConfig.steerSwitchIsMomentary ){
+        if( switchState == lightbarConfig.steerSwitchActiveLow ){
+          machine.steeringEnabled = !machine.steeringEnabled;
+        }
+      } else {
+        if( switchState == lightbarConfig.steerSwitchActiveLow ){
+          machine.steeringEnabled = false;
+        } else {
+          machine.steeringEnabled = true;
+        }
+      }
+    }
+    
     uint8_t data[14] = {0};
 
     data[0] = 0x80; // AOG specific
@@ -75,45 +94,7 @@ void autosteerWorker10Hz( void* z ) {
   }
 }
 
-void autosteerSwitchesWorker1000Hz( void* z ) {
-  constexpr TickType_t xFrequency = 1;
-  TickType_t xLastWakeTime = xTaskGetTickCount();
-  bool previousState;
-  bool switchState;
-
-  const uint8_t dutyLength = 10;
-  uint16_t dutyReadings[ dutyLength ];
-  uint32_t dutyTotal = 0;
-  uint8_t dutyIndex = 0;
-  switchState = digitalRead( ( uint8_t )lightbarConfig.gpioSteerswitch ); // initialize switch state on startup
-
-  for( ;; ) {
-    bool state = digitalRead( ( uint8_t )lightbarConfig.gpioSteerswitch);
-    if( state != previousState ){
-      switchChangeMillis = millis();
-      previousState = state;
-    }
-    if( millis() - switchChangeMillis > 50 and switchState != state ){
-      switchState = state;
-      lastSwitchChangeMillis = millis();
-      if( lightbarConfig.steerSwitchIsMomentary ){
-        if( switchState == lightbarConfig.steerSwitchActiveLow ){
-          machine.steeringEnabled = !machine.steeringEnabled;
-        }
-      } else {
-        if( switchState == lightbarConfig.steerSwitchActiveLow ){
-          machine.steeringEnabled = false;
-        } else {
-          machine.steeringEnabled = true;
-        }
-      }
-    }
-
-    vTaskDelayUntil( &xLastWakeTime, xFrequency );
-  }
-}
-
-void initAutosteer() {
+void initSwitches() {
 
   if( lightbarConfig.aogPortSendFrom != 0 ) {
     initialisation.portSendFrom = lightbarConfig.aogPortSendFrom;
@@ -127,7 +108,6 @@ void initAutosteer() {
 
   pinMode( lightbarConfig.gpioSteerswitch, INPUT_PULLUP );
 
-  xTaskCreate( autosteerWorker10Hz, "autosteerWorker", 3096, NULL, 3, NULL );
-  xTaskCreate( autosteerSwitchesWorker1000Hz, "autosteerSwitchesWorker", 3096, NULL, 3, NULL );
+  xTaskCreate( autosteerSwitchesWorker100Hz, "autosteerSwitchesWorker", 3096, NULL, 3, NULL );
 
 }

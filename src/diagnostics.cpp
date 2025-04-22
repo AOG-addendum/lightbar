@@ -41,6 +41,25 @@ void diagnosticWorker1Hz( void* z ) {
       str += ( uint16_t ) brightness.ledOutput;
       ESPUI.updateLabel( labelBrightness, str );
     }
+    {
+      String str;
+      str.reserve( 30 );
+      if( lightbarConfig.steerSwitchIsMomentary == true ){
+        str = "Momentary steer switch: ";
+      } else {
+        str = "Maintained steer switch: ";
+      }
+      str += ( bool )( digitalRead( lightbarConfig.gpioSteerswitch ) != lightbarConfig.steerSwitchActiveLow ) ? "On " : "Off " ;
+      time_t elapsed = millis() - machine.lastAutosteerMillis;
+      if( elapsed < 1000 ){
+        str += ( time_t )elapsed;
+        str += " millis ago";
+      } else {
+        str += ( time_t )elapsed / 1000;
+        str += " seconds ago";
+      }
+      ESPUI.updateLabel( labelSwitchStates, str );
+    }
     vTaskDelayUntil( &xLastWakeTime, xFrequency );
   }
 }
